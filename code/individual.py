@@ -1,33 +1,112 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sys import *
+
+import sys
+
 
 if __name__ == '__main__':
-    # Создаем пустой список для хранения словарей
+    # Создание списка словарей для хранения информации о поездах.
     trains = []
 
-    # Ввод данных с клавы
-    n = int(input("Введите количество поездов: "))
-    for i in range(n):
-        destination = input("Введите название пункта назначения: ")
-        train_number = input("Введите номер поезда: ")
-        departure_time = input("Введите время отправления: ")
-        train = {
-            "destination": destination,
-            "train_number": train_number,
-            "departure_time": departure_time
-        }
-        trains.append(train)
+    # Организация бесконечного цикла запроса команд.
+    while True:
+        # Запросить команду из терминала.
+        command = input('>>> ').lower()
 
-    # Сортировка списка по времени отправления поезда
-    trains.sort(key=lambda x: x["departure_time"])
+        # Выполнить действие в соответствии с командой.
+        if command == 'exit':
+            break
+        elif command == 'add':
+            # Запросить данные о поезде.
+            destination = input('Название пункта назначения? ')
+            number = input('Номер поезда? ')
+            departure_time = input('Время отправления? ')
 
-    # Вывод информации о поездах, направляющихся в указанный пункт назначения
-    destination_input = input("Введите название пункта назначения: ")
-    destination_trains = [train for train in trains if train["destination"] == destination_input]
-    if destination_trains:
-        for train in destination_trains:
-            print(train)
-    else:
-        print("Поездов в указанный пункт назначения нет!", file=stderr)
+            # Создать словарь.
+            train = {
+                'destination': destination,
+                'number': number,
+                'departure_time': departure_time
+            }
+
+            # Добавить словарь в список.
+            trains.append(train)
+
+            # Отсортировать список по времени отправления поезда.
+            trains.sort(key=lambda item: item.get('departure_time', ''))
+
+        elif command == 'list':
+            # Заголовок таблицы.
+            line = '+-{}-+{}-+{}-+'.format(
+                '-' * 20,
+                '-' * 15,
+                '-' * 20
+            )
+            print(line)
+            print(
+                '| {:^20} | {:^15} | {:^20} |'.format(
+                    "Пункт назначения",
+                    "Номер поезда",
+                    "Время отправления"
+                )
+            )
+            print(line)
+
+            # Вывести информацию о поездах.
+            for idx, train in enumerate(trains, 1):
+                print(
+                    '| {:<20} | {:^15} | {:^20} |'.format(
+                        train.get('destination', ''),
+                        train.get('number', ''),
+                        train.get('departure_time', '')
+                    )
+                )
+            print(line)
+
+        elif command.startswith('select '):
+            # Получить название пункта назначения из команды.
+            parts = command.split(' ', maxsplit=1)
+            destination = parts[1]
+
+            # Поиск поездов с заданным пунктом назначения.
+            selected_trains = [train for train in trains if train['destination'] == destination]
+
+            if selected_trains:
+                # Вывести информацию о найденных поездах в виде таблицы.
+                line = '+-{}-+{}-+{}-+'.format(
+                    '-' * 20,
+                    '-' * 15,
+                    '-' * 20
+                )
+                print(line)
+                print(
+                    '| {:^20} | {:^15} | {:^20} |'.format(
+                        "Пункт назначения",
+                        "Номер поезда",
+                        "Время отправления"
+                    )
+                )
+                print(line)
+                for train in selected_trains:
+                    print(
+                        '| {:<20} | {:^15} | {:^20} |'.format(
+                            train.get('destination', ''),
+                            train.get('number', ''),
+                            train.get('departure_time', '')
+                        )
+                    )
+                print(line)
+            else:
+                print(f'Поездов в пункт "{destination}" не найдено')
+
+
+        elif command == 'help':
+            # Вывести справку о работе с программой.
+            print('Список команд:\n')
+            print('add - добавить информацию о поезде;')
+            print('list - вывести список всех поездов;')
+            print('select <пункт_назначения> - запросить информацию о поездах в заданном пункте назначения;')
+            print('exit - завершить работу с программой.')
+        else:
+            print(f'Неизвестная команда "{command}"!', file=sys.stderr)
